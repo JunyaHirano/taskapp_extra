@@ -9,24 +9,40 @@ import UIKit
 import RealmSwift
 import UserNotifications
 
-class ViewController: UIViewController , UITableViewDelegate, UITableViewDataSource {
+class ViewController: UIViewController , UITableViewDelegate, UITableViewDataSource, UISearchBarDelegate { //UISearchBarデリゲート追加
     
     @IBOutlet weak var tableView: UITableView!
+    //検索ボックスを接続
+    @IBOutlet weak var searchBox: UISearchBar!
     
     // Realmインスタンスを取得する
     let realm = try! Realm()
     
-    //DB内のタスクが格納されるリスト
-    //日付の近い順でソート:昇順
-    //以降内容をアプデするとリスト内は自動的に更新される
-    var taskArray = try! Realm().objects(Task.self).sorted(byKeyPath: "date", ascending: true)
+    //DB内のタスクが格納されるリスト taskArray
+    //byKeyPath dateで日付の近い順でソート:昇順
+    //ascending trueで 以降内容をアプデするとリスト内は自動的に更新される
+    var taskArray = try! Realm().objects(Task.self)
+    var result = try! Realm().objects(Task.self).sorted(byKeyPath: "date", ascending: true)
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
         tableView.delegate = self
         tableView.dataSource = self
+        //検索バーのデリゲートを受け取る
+        searchBox.delegate = self
     }
+    
+    //検索バーメソッド 検索バーの値を取得しrelmの絞り込みを指定して値を返す taskArrayに代入する
+      func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String){
+          if searchText.isEmpty {
+             result = realm.objects(Task.self)
+          } else {
+             result = realm.objects(Task.self).filter("category CONTAINS %@" , searchText)
+          }
+        taskArray = result
+        tableView.reloadData()
+      }
 
     //データの数（＝セルの数）を返すメソッド
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int{
@@ -110,6 +126,10 @@ class ViewController: UIViewController , UITableViewDelegate, UITableViewDataSou
         tableView.reloadData()
     }
     
+    //確定して戻るボタン
+    @IBAction func unwind(_ segue: UIStoryboardSegue){
+        
+    }
     
 }
 

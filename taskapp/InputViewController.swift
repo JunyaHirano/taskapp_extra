@@ -14,6 +14,8 @@ class InputViewController: UIViewController {
     @IBOutlet weak var titleTextField: UITextField!
     @IBOutlet weak var contentsTextView: UITextView!
     @IBOutlet weak var datePicker: UIDatePicker!
+    //カテゴリを追加
+    @IBOutlet weak var categoryTextField: UITextField!
     
     let realm = try! Realm()
     var task: Task!
@@ -26,6 +28,8 @@ class InputViewController: UIViewController {
         self.view.addGestureRecognizer(tapGesture)
         
         titleTextField.text = task.title
+        //カテゴリ追加
+        categoryTextField.text = task.category
         contentsTextView.text = task.contents
         datePicker.date = task.date
     }
@@ -35,6 +39,8 @@ class InputViewController: UIViewController {
             self.task.title = self.titleTextField.text!
             self.task.contents = self.contentsTextView.text
             self.task.date = self.datePicker.date
+            //カテゴリ追加
+            self.task.category = self.categoryTextField.text!
             self.realm.add(self.task, update: .modified)
         }
         
@@ -43,6 +49,8 @@ class InputViewController: UIViewController {
         super.viewWillDisappear(animated)
         
     }
+    
+    
     
     //タスクのローカル通知を登録する
     func setNotification(task: Task){
@@ -53,11 +61,21 @@ class InputViewController: UIViewController {
         } else {
             content.title = task.title
         }
+        
         if task.contents == "" {
             content.body = "（内容なし）"
-        } else {
+        }
+        else {
             content.body = task.contents
         }
+        
+        if task.category == "" {
+            content.title = "(内容なし)"
+        }
+        else {
+            content.title = task.category
+        }
+        
         content.sound = UNNotificationSound.default
         
         //ローカル通知が発動するtrigger（日付マッチ）を作成
