@@ -22,6 +22,8 @@ class ViewController: UIViewController , UITableViewDelegate, UITableViewDataSou
     //byKeyPath dateで日付の近い順でソート:昇順
     //ascending trueで 以降内容をアプデするとリスト内は自動的に更新される
     var taskArray = try! Realm().objects(Task.self)
+    
+    // taskArrayに代入するresultを定義
     var result = try! Realm().objects(Task.self).sorted(byKeyPath: "date", ascending: true)
     
     override func viewDidLoad() {
