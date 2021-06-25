@@ -9,29 +9,58 @@ import UIKit
 import RealmSwift
 import UserNotifications
 
-class InputViewController: UIViewController {
+class InputViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSource {
+    //UIPickerViewのデリゲートとプロトコル追加
     
     @IBOutlet weak var titleTextField: UITextField!
     @IBOutlet weak var contentsTextView: UITextView!
     @IBOutlet weak var datePicker: UIDatePicker!
-    //カテゴリを追加
-    @IBOutlet weak var categoryTextField: UITextField!
+    //カテゴリを選択（ピッカー）
+    @IBOutlet weak var categoryPicker: UIPickerView!
     
     let realm = try! Realm()
     var task: Task!
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
+        categoryPicker.delegate = self
+        categoryPicker.dataSource = self
         //背景をタップしたらdismissKeyboardメソッドを呼ぶように設定する
         let tapGesture: UITapGestureRecognizer = UITapGestureRecognizer(target:self, action: #selector(dismissKeyboard))
         self.view.addGestureRecognizer(tapGesture)
         
         titleTextField.text = task.title
-        //カテゴリ追加
-        categoryTextField.text = task.category
         contentsTextView.text = task.contents
         datePicker.date = task.date
+        
+        
+    }
+    
+    //カテゴリ表示部分、ifでカテゴリがひとつもない場合は「カテゴリを追加してください」という表示が必要
+    //let category = Array(task.category)
+    //仮の配列をいれておく
+    let categories = [
+        "筋トレ", "買い物", "開発", "勉強", "仕事"
+    ]
+    
+    // カテゴリUIPickerViewの列数
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
+        return 1
+    }
+    // 行数、要素の全数を返す
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component:Int) -> Int {
+      return categories.count
+    }
+    //UIPickerViewに最初の表示をする
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        return categories[row]
+    }
+    // UIPickerViewのRowが選択された時の処理
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int){
+     //選択されたカテゴリラベルをtaskの方のカテゴリに書き込む（確定ボタン押下時に書き込む必要がありそう）
+    // task.category = categories[row]
+
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -40,17 +69,13 @@ class InputViewController: UIViewController {
             self.task.contents = self.contentsTextView.text
             self.task.date = self.datePicker.date
             //カテゴリ追加
-            self.task.category = self.categoryTextField.text!
+           // self.task.category = self.categoryTextField.text!
             self.realm.add(self.task, update: .modified)
         }
         
         setNotification(task: task)
-        
         super.viewWillDisappear(animated)
-        
     }
-    
-    
     
     //タスクのローカル通知を登録する
     func setNotification(task: Task){
@@ -69,12 +94,12 @@ class InputViewController: UIViewController {
             content.body = task.contents
         }
         
-        if task.category == "" {
-            content.title = "(内容なし)"
-        }
-        else {
-            content.title = task.category
-        }
+//        if task.category == "" {
+//            content.title = "(内容なし)"
+//        }
+//        else {
+//            content.title = task.category
+//        }
         
         content.sound = UNNotificationSound.default
         
@@ -105,6 +130,15 @@ class InputViewController: UIViewController {
     @objc func dismissKeyboard(){
         //キーボードを閉じる
         view.endEditing(true)
+    }
+    
+    @IBAction func forCategoryView(_ sender: Any) {
+        //「カテゴリを追加する」ボタン押下で遷移する処理
+        //カテゴリビューコントローラーをpresentメソッドで開く
+        let CategoryViewController = self.storyboard?.instantiateViewController(withIdentifier: "AddCategory")
+        //presentメソッドで開く
+        self.present(CategoryViewController!, animated: true, completion: nil)
+        
     }
 
 

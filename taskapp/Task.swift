@@ -14,19 +14,18 @@ class Task: Object {
     //タイトル
     @objc dynamic var title = ""
     
-    //カテゴリ
-    @objc dynamic var category = ""
-    
+    //タスクに設定できるカテゴリ自体はひとつなのでテキスト
+    //@objc dynamic var category = ""
+     
     //内容
     @objc dynamic var contents = ""
     
     //日時
     @objc dynamic var date = Date()
     
-    
     // idをプライマリーキーとして設定
     override static func primaryKey() -> String? {
         return "id"
     }
-    
 }
+

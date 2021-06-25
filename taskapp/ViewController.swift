@@ -13,7 +13,10 @@ class ViewController: UIViewController , UITableViewDelegate, UITableViewDataSou
     
     @IBOutlet weak var tableView: UITableView!
     //検索ボックスを接続
-    @IBOutlet weak var searchBox: UISearchBar!
+    //@IBOutlet weak var searchBox: UISearchBar!
+    
+    //検索ボックスPickerViewを接続    
+    @IBOutlet weak var searchSelectBox: UIPickerView!
     
     // Realmインスタンスを取得する
     let realm = try! Realm()
@@ -21,28 +24,27 @@ class ViewController: UIViewController , UITableViewDelegate, UITableViewDataSou
     //DB内のタスクが格納されるリスト taskArray
     //byKeyPath dateで日付の近い順でソート:昇順
     //ascending trueで 以降内容をアプデするとリスト内は自動的に更新される
-    var taskArray = try! Realm().objects(Task.self)
-    
-    // taskArrayに代入するresultを定義
-    var result = try! Realm().objects(Task.self).sorted(byKeyPath: "date", ascending: true)
+    var taskArray = try! Realm().objects(Task.self).sorted(byKeyPath: "date", ascending: true)
+    // taskArrayに代入するresultを宣言
+    var result:Results<Task>?
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
         tableView.delegate = self
         tableView.dataSource = self
-        //検索バーのデリゲートを受け取る
-        searchBox.delegate = self
+        //カテゴリ検索バーのデリゲートを受け取る
+        //searchBox.delegate = self
     }
     
-    //検索バーメソッド 検索バーの値を取得しrelmの絞り込みを指定して値を返す taskArrayに代入する
+    //検索バーメソッド 検索バーの値を取得しrealmの絞り込みを指定して値を返す taskArrayに代入する
       func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String){
           if searchText.isEmpty {
              result = realm.objects(Task.self)
           } else {
              result = realm.objects(Task.self).filter("category CONTAINS %@" , searchText)
           }
-        taskArray = result
+        taskArray = result!
         tableView.reloadData()
       }
 
